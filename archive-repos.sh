@@ -32,8 +32,14 @@ else
   echo "Executing as Dry run mode"
 fi
 
-# Set the number of days ago as a date
-DATE_SINCE=$(date -v -${DAYS_AGO}d +%Y-%m-%d)
+# Set the number of days ago as a date (compatible with macOS and Linux)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS
+  DATE_SINCE=$(date -v -${DAYS_AGO}d +%Y-%m-%d)
+else
+  # Linux (Ubuntu and others)
+  DATE_SINCE=$(date -d "$DAYS_AGO days ago" +%Y-%m-%d)
+fi
 
 query=$(cat <<EOF
 query(\$owner: String!, \$dateSince: GitTimestamp!, \$cursor: String) {
