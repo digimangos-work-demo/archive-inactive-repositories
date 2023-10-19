@@ -22,15 +22,54 @@ This Bash script helps you archive GitHub repositories that haven't received any
 
 - To perform a dry run and report repositories without archiving:
 
-   - `./archive-repos.sh -o your_organization`
+  - `./archive-repos.sh -o your_organization`
 
 - To execute the archive operation:
 
-   - `./archive-repos.sh -o your_organization -e`
+  - `./archive-repos.sh -o your_organization -e`
 
 - To specify a custom number of days (e.g., 180) and execute the archive operation:
 
-   - `./archive-repos.sh -o your_organization -d 180 -e`
+  - `./archive-repos.sh -o your_organization -d 180 -e`
+
+## Executing as an action
+
+- Create a token with the following scopes:
+  - `read:org`
+  - `repo`
+
+- You can execute this script as an action using the following example worfklow:
+
+  ```yaml
+  name: Archive Repositories
+
+  on:
+    schedule:
+      - cron: '0 0 * * *' # Schedule the workflow to run daily at midnight
+    workflow_dispatch:    # Allow manual execution of the workflow
+
+  jobs:
+    archive:
+      runs-on: ubuntu-latest
+
+      env:
+        GH_ORG: your_organization # Organization name
+        DAYS_AGO: 365 # Default number of days (adjust as needed)
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Run Archive Script
+          env:
+            GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          run: |
+            # Make the script executable
+            chmod +x archive-repos.sh
+
+            # Execute the script with GitHub token and environment variables
+            ./archive-repos.sh -o "$GH_ORG" -d "$DAYS_AGO" -e
+  ```
 
 ## Notes
 
